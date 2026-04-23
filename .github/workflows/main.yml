@@ -24,8 +24,19 @@ jobs:
 
     - name: Install User Service Dependencies
       run: |
-        cd user-service
+        cd ../user-service
         npm install
 
+    - name: Install Gateway Dependencies
+      run: |
+        cd ../gateway
+        npm install
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Build Docker Images
+      run: docker-compose build
+
     - name: Build Success
-      run: echo "Project Build Successful 🎉"
+      run: echo "✅ CI Pipeline Completed Successfully! All services built."
