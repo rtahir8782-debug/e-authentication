@@ -1,0 +1,35 @@
+services:
+  auth-service:
+    build: ./auth-service
+    ports:
+      - "4001:4001"
+
+  user-service:
+    build: ./user-service
+    ports:
+      - "4002:4002"
+
+  frontend:
+    image: nginx:alpine
+    volumes:
+      - ./frontend:/usr/share/nginx/html
+    ports:
+      - "3000:80"
+
+  gateway:
+    build: ./gateway
+    ports:
+      - "4000:4000"
+    depends_on:
+      - auth-service
+      - user-service
+
+  mongodb:
+    image: mongo:6
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:

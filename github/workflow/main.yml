@@ -1,0 +1,31 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Use Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+
+    - name: Install Auth Service Dependencies
+      run: |
+        cd auth-service
+        npm install
+
+    - name: Install User Service Dependencies
+      run: |
+        cd user-service
+        npm install
+
+    - name: Build Success
+      run: echo "Project Build Successful 🎉"

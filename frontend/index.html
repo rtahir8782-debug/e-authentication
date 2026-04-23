@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>E-Auth System</title>
+  <meta charset="UTF-8">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      width: 100%;
+      max-width: 450px;
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+
+    .header p {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    .content {
+      padding: 30px;
+    }
+
+    /* Login View */
+    #loginView {
+      display: block;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #333;
+      font-size: 14px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+      transition: border-color 0.3s;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .step-indicator {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 25px;
+      padding-bottom: 25px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+
+    .step {
+      text-align: center;
+      flex: 1;
+    }
+
+    .step-number {
+      display: inline-block;
+      width: 36px;
+      height: 36px;
+      background: #667eea;
+      color: white;
+      border-radius: 50%;
+      line-height: 36px;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    .step.active .step-number {
+      background: #28a745;
+    }
+
+    .step p {
+      font-size: 12px;
+      color: #666;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #5568d3;
+    }
+
+    button.secondary {
+      background: #6c757d;
+      margin-top: 15px;
+    }
+
+    button.secondary:hover {
+      background: #5a6268;
+    }
+
+    button.danger {
+      background: #dc3545;
+    }
+
+    button.danger:hover {
+      background: #c82333;
+    }
+
+    button.success {
+      background: #28a745;
+    }
+
+    button.success:hover {
+      background: #218838;
+    }
+
+    /* Dashboard View */
+    #dashboardView {
+      display: none;
+    }
+
+    .dashboard-header {
+      text-align: center;
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+
+    .user-badge {
+      display: inline-block;
+      background: #e3f2fd;
+      color: #1976d2;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      font-size: 16px;
+    }
+
+    .dashboard-title {
+      font-size: 24px;
+      color: #333;
+      margin-top: 15px;
+    }
+
+    .action-section {
+      margin-bottom: 25px;
+    }
+
+    .action-section h3 {
+      font-size: 14px;
+      color: #666;
+      font-weight: 600;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .button-group button {
+      flex: 1;
+      min-width: 140px;
+    }
+
+    #status {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 6px;
+      font-size: 14px;
+      line-height: 1.5;
+      display: none;
+    }
+
+    #status.show {
+      display: block;
+    }
+
+    .status-success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .status-error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    .status-info {
+      background: #d1ecf1;
+      color: #0c5460;
+      border: 1px solid #bee5eb;
+    }
+
+    .hint {
+      background: #fff3cd;
+      border: 1px solid #ffeaa7;
+      color: #856404;
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      margin-top: 15px;
+    }
+
+    /* Toast Notifications */
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 9999;
+      max-width: 400px;
+    }
+
+    .toast {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+      padding: 16px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      animation: slideInRight 0.3s ease-out;
+      border-left: 4px solid #667eea;
+    }
+
+    @keyframes slideInRight {
+      from {
+        transform: translateX(400px);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes slideOutRight {
+      from {
+        transform: translateX(0);
+        opacity: 1;
+      }
+      to {
+        transform: translateX(400px);
+        opacity: 0;
+      }
+    }
+
+    .toast.remove {
+      animation: slideOutRight 0.3s ease-out forwards;
+    }
+
+    .toast-icon {
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .toast-content {
+      flex: 1;
+    }
+
+    .toast-title {
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 4px;
+      font-size: 14px;
+    }
+
+    .toast-message {
+      color: #666;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .toast-close {
+      background: none;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      color: #999;
+      padding: 0;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .toast-close:hover {
+      color: #333;
+    }
+
+    .toast-progress {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 3px;
+      background: currentColor;
+      border-radius: 0 0 8px 0;
+      animation: progressBar 3s linear;
+    }
+
+    @keyframes progressBar {
+      from {
+        width: 100%;
+      }
+      to {
+        width: 0%;
+      }
+    }
+
+    /* Toast Types */
+    .toast.success {
+      border-left-color: #28a745;
+      background: #f0f9f7;
+    }
+
+    .toast.success .toast-title {
+      color: #28a745;
+    }
+
+    .toast.error {
+      border-left-color: #dc3545;
+      background: #fef5f5;
+    }
+
+    .toast.error .toast-title {
+      color: #dc3545;
+    }
+
+    .toast.info {
+      border-left-color: #667eea;
+      background: #f5f7ff;
+    }
+
+    .toast.info .toast-title {
+      color: #667eea;
+    }
+
+    .toast.warning {
+      border-left-color: #ffc107;
+      background: #fff8e1;
+    }
+
+    .toast.warning .toast-title {
+      color: #ff9800;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 600px) {
+      .toast-container {
+        left: 10px;
+        right: 10px;
+        max-width: none;
+      }
+
+      .header h1 {
+        font-size: 24px;
+      }
+
+      .button-group {
+        flex-direction: column;
+      }
+
+      .button-group button {
+        min-width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<div class="container">
+  <div class="header">
+    <h1>🔐 E-Auth System</h1>
+    <p>Secure OTP-based Authentication</p>
+  </div>
+
+  <div class="content">
+    <!-- LOGIN VIEW -->
+    <div id="loginView">
+      <div class="step-indicator">
+        <div class="step active" id="step1">
+          <div class="step-number">1</div>
+          <p>Login</p>
+        </div>
+        <div class="step" id="step2">
+          <div class="step-number">2</div>
+          <p>Verify OTP</p>
+        </div>
+        <div class="step" id="step3">
+          <div class="step-number">3</div>
+          <p>Dashboard</p>
+        </div>
+      </div>
+
+      <!-- Step 1: Login -->
+      <div class="form-group">
+        <label>Username</label>
+        <input id="username" type="text" placeholder="Enter username (or 'admin')" />
+        <button onclick="login()">📱 Send OTP</button>
+      </div>
+
+      <!-- Step 2: Verify OTP -->
+      <div class="form-group">
+        <label>One-Time Password</label>
+        <input id="otp" type="text" placeholder="Enter 6-digit OTP from terminal" />
+        <button onclick="verify()">✅ Verify OTP</button>
+      </div>
+
+      <div class="hint">💡 Tip: Check your terminal for the OTP after clicking "Send OTP"</div>
+    </div>
+
+    <!-- DASHBOARD VIEW -->
+    <div id="dashboardView">
+      <div class="dashboard-header">
+        <div class="user-badge" id="userBadge">👤 User</div>
+        <div class="dashboard-title">Welcome to Dashboard!</div>
+      </div>
+
+      <div class="action-section">
+        <h3>🔐 Access Control</h3>
+        <div class="button-group">
+          <button class="success" onclick="checkAdminAccess()">👑 Check Admin Access</button>
+          <button class="secondary" onclick="logout()">🚪 Logout</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let currentUser = "";
+  let authToken = "";
+
+  // ==================== TOAST NOTIFICATION SYSTEM ====================
+  
+  function showToast(message, type = "info", title = "") {
+    const container = document.getElementById("toastContainer");
+    const toast = document.createElement("div");
+    toast.className = `toast ${type}`;
+    
+    const icons = {
+      success: "✅",
+      error: "❌",
+      info: "ℹ️",
+      warning: "⚠️"
+    };
+
+    const titles = {
+      success: title || "Success",
+      error: title || "Error",
+      info: title || "Info",
+      warning: title || "Warning"
+    };
+
+    toast.innerHTML = `
+      <div class="toast-icon">${icons[type]}</div>
+      <div class="toast-content">
+        <div class="toast-title">${titles[type]}</div>
+        <div class="toast-message">${message}</div>
+      </div>
+      <button class="toast-close" onclick="removeToast(this.parentElement)">×</button>
+      <div class="toast-progress"></div>
+    `;
+
+    container.appendChild(toast);
+
+    // Auto-remove after 3 seconds
+    setTimeout(() => {
+      removeToast(toast);
+    }, 3000);
+  }
+
+  function removeToast(toastEl) {
+    toastEl.classList.add("remove");
+    setTimeout(() => {
+      toastEl.remove();
+    }, 300);
+  }
+
+  // ==================== AUTHENTICATION FUNCTIONS ====================
+
+  // Step 1: Send OTP
+  async function login() {
+    const username = document.getElementById("username").value.trim();
+    
+    if (!username) {
+      showToast("Please enter a username", "warning", "Validation Error");
+      return;
+    }
+
+    currentUser = username;
+    showToast("Sending OTP...", "info", "Processing");
+
+    try {
+      const res = await fetch("http://localhost:4000/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username })
+      });
+
+      const data = await res.json();
+      
+      if (data.success) {
+        showToast("Check your terminal for the OTP code", "success", "OTP Sent!");
+        updateStepIndicator(2);
+      } else {
+        showToast(data.message || "Login failed", "error", "Login Error");
+      }
+    } catch (err) {
+      showToast("Network error: " + err.message, "error", "Connection Error");
+    }
+  }
+
+  // Step 2: Verify OTP and show dashboard
+  async function verify() {
+    const otp = document.getElementById("otp").value.trim();
+    
+    if (!otp) {
+      showToast("Please enter the OTP", "warning", "Validation Error");
+      return;
+    }
+
+    if (!currentUser) {
+      showToast("Please login first", "warning", "Validation Error");
+      return;
+    }
+
+    showToast("Verifying OTP...", "info", "Processing");
+
+    try {
+      const res = await fetch("http://localhost:4000/auth/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: currentUser, otp })
+      });
+
+      const data = await res.json();
+      
+      if (data.success && data.token) {
+        authToken = data.token;
+        showToast("Redirecting to dashboard...", "success", "Login Successful!");
+        updateStepIndicator(3);
+        
+        setTimeout(() => {
+          showDashboard();
+        }, 800);
+      } else {
+        showToast(data.message || "Invalid OTP", "error", "Verification Failed");
+      }
+    } catch (err) {
+      showToast("Network error: " + err.message, "error", "Connection Error");
+    }
+  }
+
+  // Check Admin Access
+  async function checkAdminAccess() {
+    if (!authToken) {
+      showToast("Please login first", "warning", "Authentication Required");
+      return;
+    }
+
+    showToast("Checking access level...", "info", "Processing");
+
+    try {
+      const res = await fetch("http://localhost:4000/auth/admin", {
+        method: "GET",
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + authToken 
+        }
+      });
+
+      const data = await res.json();
+      
+      if (data.success) {
+        showToast(`Welcome ${data.user}! You have admin access.`, "success", data.message);
+      } else {
+        showToast(data.message, "error", "Access Denied");
+      }
+    } catch (err) {
+      showToast("Network error: " + err.message, "error", "Connection Error");
+    }
+  }
+
+  // Show Dashboard
+  function showDashboard() {
+    // Hide login view, show dashboard
+    document.getElementById("loginView").style.display = "none";
+    document.getElementById("dashboardView").style.display = "block";
+    
+    // Update user badge
+    document.getElementById("userBadge").textContent = "👤 " + currentUser;
+  }
+
+  // Logout
+  function logout() {
+    authToken = "";
+    currentUser = "";
+    
+    // Clear inputs
+    document.getElementById("username").value = "";
+    document.getElementById("otp").value = "";
+    
+    // Show login view
+    document.getElementById("loginView").style.display = "block";
+    document.getElementById("dashboardView").style.display = "none";
+    
+    // Reset steps
+    updateStepIndicator(1);
+    
+    showToast("You have been logged out", "info", "Goodbye!");
+  }
+
+  // Helper: Update step indicator
+  function updateStepIndicator(step) {
+    const steps = document.querySelectorAll(".step");
+    steps.forEach((s, idx) => {
+      if (idx < step) {
+        s.classList.add("active");
+      } else {
+        s.classList.remove("active");
+      }
+    });
+  }
+</script>
+
+</body>
+</html>
