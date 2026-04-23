@@ -18,19 +18,16 @@ jobs:
         node-version: '18'
 
     - name: Install Auth Service Dependencies
-      run: |
-        cd auth-service
-        npm install
+      working-directory: ./auth-service
+      run: npm install
 
     - name: Install User Service Dependencies
-      run: |
-        cd ../user-service
-        npm install
+      working-directory: ./user-service
+      run: npm install
 
     - name: Install Gateway Dependencies
-      run: |
-        cd ../gateway
-        npm install
+      working-directory: ./gateway
+      run: npm install
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
