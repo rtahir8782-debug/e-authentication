@@ -104,11 +104,14 @@ app.post("/verify", async (req, res) => {
       return res.status(401).json({ success: false, message: "Invalid OTP" });
     }
 
+    console.log("✅ OTP verified successfully for user:", username);
+
     // Create JWT with username and role
     const token = jwt.sign({ username: user.username, role: user.role }, SECRET, {
       expiresIn: "1h",
     });
 
+    console.log("🔐 JWT Token Generated:", token);
     console.log("✅ JWT issued for user:", username, "with role:", user.role);
     res.json({ success: true, token });
   } catch (err) {
